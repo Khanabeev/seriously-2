@@ -120,7 +120,7 @@ FROM events as e1
 WHERE e1.event_type = 'select_target_floor'
 ```
 
-### count events
+### Count events
 
 Any type of event can be used in a query
 
