@@ -23,7 +23,7 @@
 
 ## Actors
 
-1. Passenger (not need a Class)
+1. Passenger (not need as a Class)
 2. Elevator
 3. Floors
 4. Doors
@@ -47,7 +47,7 @@
 
 ## Algorithms
 
-1. FIFO (not good)
+1. FIFO
     1. We put all elevator requests in a queue
     2. Elevator can be in several states:
         1. idle
@@ -63,3 +63,27 @@
     1. Elevator will look if there are requests in front of a queue -> if there are no request -> it stops
 5. Destination Dispatch (with one button and many elevators which gather passengers who are moving in the same
    direction)
+
+After a short research of elevator's system design, requirements and models, we can create a data model based on
+information we received.
+
+# Data Model
+
+This kind of app will be work as `event driven` app, it means that a controller only receive a message when something
+change, some state change occurs. Below you can see possible events that can be useful for performance analysis and
+statistics.
+
+## Events
+
+- Every event can have (:time, :date, :source). Source can be elevator or passenger who press a button or door e.t.c.
+- Register landing_request event (:flor, :direction)
+    - then we can assign the request to elevator and get data like (:expected_response_time, :average_response_time, :
+      hi_threshold_time, :threshold_load)
+- Floor event (:next_stop_floor, :elevator_direction)
+- Door event (:door_state = locked,closed, opened)
+
+With these events we can create a database model and use it for a logging.
+
+# Database model
+
+![image](db_model.png)
