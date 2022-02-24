@@ -23,7 +23,7 @@
 
 ## Actors
 
-1. Passenger (not need as a Class)
+1. Passenger (is not needed as a Class)
 2. Elevator
 3. Floors
 4. Doors
@@ -82,8 +82,34 @@ statistics.
 - Floor event (:next_stop_floor, :elevator_direction)
 - Door event (:door_state = locked,closed, opened)
 
-With these events we can create a database model and use it for a logging.
+Base on these events we can create a database model and use it for a logging.
 
 # Database model
 
 ![image](db_model.png)
+
+## Queries
+
+### Average waiting time per passenger
+`event_type`
+- <b>landing_call</b> - when a passenger push a call button on a floor
+- <b>elevator_opens_door</b> - when an elevator has arrived and opens doors
+```
+SELECT AVG(TIME_TO_SEC(TIMEDIFF(e2.created_at, e1.created_at))) as avg_wait_time_sec
+FROM events as e1
+         INNER JOIN events as e2 ON e1.id = e2.parent_event_id
+    AND e2.event_type = 'elevator_opens_door'
+WHERE e1.event_type = 'landing_call'
+```
+
+### Average journey time per passenger
+`event_type`
+- <b>select_target_floor</b> - when a passenger push a button of target floor inside the elevator
+- <b>achieved_target_floor</b> - when an elevator has arrived to target floor
+```
+SELECT AVG(TIME_TO_SEC(TIMEDIFF(e2.created_at, e1.created_at))) as avg_journey_time_sec
+FROM events as e1
+         INNER JOIN events as e2 ON e1.id = e2.parent_event_id
+    AND e2.event_type = 'achieved_target_floor'
+WHERE e1.event_type = 'select_target_floor'
+```
