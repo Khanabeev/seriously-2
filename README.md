@@ -113,3 +113,25 @@ FROM events as e1
     AND e2.event_type = 'achieved_target_floor'
 WHERE e1.event_type = 'select_target_floor'
 ```
+
+### count events
+Any type of events can be used in query
+```
+SELECT DISTINCT elevator_id,
+                SUM(IF(event_type = 'elevator_opens_door', 1, 0))
+                    OVER (PARTITION BY elevator_id) as door_opens_count
+FROM events as e
+WHERE elevator_id IS NOT NULL
+```
+
+### Average idle time per elevator
+``` 
+SELECT e1.elevator_id,
+       AVG(TIME_TO_SEC(TIMEDIFF(e2.created_at, e1.created_at))) as avg_idle_time_sec
+FROM events e1
+         LEFT JOIN events e2 ON e1.elevator_id = e2.elevator_id
+    AND e2.parent_event_id = e1.id
+    AND e2.created_at > e1.created_at
+WHERE e1.elevator_state = 'idle'
+GROUP BY e1.elevator_id
+```
